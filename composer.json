@@ -1,0 +1,20 @@
+{
+    "name": "zhaozhiliang/easy-redis",
+    "description": "Practical tools of Redis",
+    "type": "library",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "zhaozhiliang",
+            "email": "390382430@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "EasyRedis\\": "src/",
+            "EasyRedis\\Test\\": "tests/"
+        }
+    },
+    "require": {}
+}
