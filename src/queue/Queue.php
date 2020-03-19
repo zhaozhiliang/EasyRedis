@@ -1,11 +1,20 @@
 <?php
-
 namespace EasyRedis\queue;
 
+use EasyRedis\component\Singleton;
 use EasyRedis\lock\Lock;
 
 class Queue
 {
+    use Singleton;
+
+    private $dealObjects = [];
+    public function addDealObject($type, $className)
+    {
+        if(!isset($this->dealObjects[$type])){
+            $this->dealObjects[$type] = $className;
+        }
+    }
 
     /**
      * 将任务加入到队列
@@ -15,7 +24,7 @@ class Queue
      * @param array $args
      * @return bool
      */
-    public static function enter(\Redis $redis, string $queueName, string $type, array $args)
+    public function enter(\Redis $redis, string $queueName, string $type, array $args)
     {
         $data = array(
             'type'=> $type, //'do_goods_email',
@@ -31,7 +40,7 @@ class Queue
      * @param \Redis $redis
      * @param $queue
      */
-    public static function deal(\Redis $redis, $queue)
+    public function deal(\Redis $redis, $queue)
     {
         while(true){
 
@@ -47,9 +56,12 @@ class Queue
             $args = $params['args'];
 
             //print_r($params);
-
-            $className = 'EasyRedis\queue\Deal'.ucfirst($type).'Msg';
-
+            if(!isset($this->dealObjects[$type])){
+                //记录日志
+                echo "消息类型:{$type} 没有配置相应的处理类\n";
+                continue;
+            }
+            $className = $this->dealObjects[$type];
             if(!class_exists($className)){
                 //记录日志
                 echo "class:{$className}不存在\n";
@@ -124,7 +136,7 @@ class Queue
      * 处理延迟队列中的任务
      * @param $redis
      */
-    public static function dealDelayQueue(\Redis $redis)
+    public function dealDelayQueue(\Redis $redis)
     {
         while(true){
             $item = $redis->zRange('delayed:', 0, 0, true );

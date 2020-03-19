@@ -13,8 +13,11 @@
     "autoload": {
         "psr-4": {
             "EasyRedis\\": "src/",
-            "EasyRedis\\Test\\": "tests/"
+            "EasyRedis\\Test\\": "tests/",
+            "EasyRedis\\Example\\": "examples/"
         }
     },
-    "require": {}
+    "require": {
+      "ext-redis": "*"
+    }
 }

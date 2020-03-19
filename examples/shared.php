@@ -1,6 +1,13 @@
 <?php
 
-require_once dirname(__DIR__).'/vendor/autoload.php';
+$autoloadFile = dirname(__DIR__).'/../../../vendor/autoload.php';
+if(file_exists($autoloadFile)) {
+    //require_once $autoloadFile;
+    include_once $autoloadFile;
+} else {
+    include_once dirname(__DIR__).'/vendor/autoload.php';
+}
+
 
 $single_server = array(
     'host' => '127.0.0.1',

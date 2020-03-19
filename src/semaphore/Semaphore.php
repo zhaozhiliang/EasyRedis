@@ -13,7 +13,7 @@ class Semaphore
      * @return bool
      */
     public static function acquire(\Redis $redis, string $name, int $limit, int $timeout=10){
-        $identifier = Lock::acquire($redis, $name, 0.01);
+        $identifier = Lock::acquire($redis, $name, 1);
         if($identifier){
             $res = self::unSafeAcquire($redis, $name, $limit, $timeout);
             Lock::release($redis,$name, $identifier);

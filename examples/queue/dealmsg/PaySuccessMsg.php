@@ -1,9 +1,9 @@
 <?php
-namespace EasyRedis\queue;
+namespace EasyRedis\Example\queue\dealmsg;
 
 use EasyRedis\queue\abstractInterface\DealMsgAbstract;
 
-class DealPaySuccessMsg extends DealMsgAbstract
+class PaySuccessMsg extends DealMsgAbstract
 {
     function run(array $args)
     {

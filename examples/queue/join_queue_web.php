@@ -1,6 +1,4 @@
 <?php
-
-
 require __DIR__ . '/../shared.php';
 
 use EasyRedis\queue\Queue;
@@ -9,9 +7,10 @@ function actionRegister()
 {
     global $redis;
 
+
     for ($i = 1; $i <= 1; $i++) {
         $args = ['email' => 'lbm' . $i . '@lbm.com', 'uid' => $i, 'time' => time()];
-        $addRes = Queue::enter($redis, 'queue:important', 'register', $args);
+        $addRes = Queue::getInstance()->enter($redis, 'queue:important', 'register', $args);
         echo 'addRes:';
         var_dump($addRes);
     }
@@ -32,7 +31,7 @@ function actionPaysuccess()
 
     for($i=1; $i<= 1; $i++){
         $args = ['order_no'=> $i.time() ,'time' => time()];
-        $addRes = Queue::enter($redis, 'queue:important','paySuccess',$args);
+        $addRes = Queue::getInstance()->enter($redis, 'queue:important','paySuccess',$args);
         echo 'addRes:';
         var_dump($addRes);
     }
@@ -42,6 +41,8 @@ function actionPaysuccess()
     echo '</pre>';
 }
 
+echo __FILE__;
+
 //模拟请求到达控制器后 执行相应的action
-//actionRegister();
-actionPaysuccess();
+actionRegister();
+//actionPaysuccess();
