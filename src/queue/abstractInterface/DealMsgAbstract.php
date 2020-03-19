@@ -1,10 +1,9 @@
 <?php
 namespace EasyRedis\queue\abstractInterface;
 
-use EasyRedis\component\Singleton;
-
+use EasyRedis\component\SingletonSubclass;
 abstract class DealMsgAbstract
 {
-    use Singleton;
+    use SingletonSubclass;
     abstract function run(array $args);
 }

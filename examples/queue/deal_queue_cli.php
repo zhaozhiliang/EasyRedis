@@ -8,9 +8,10 @@ use EasyRedis\Example\queue\dealmsg\RegisterMsg;
 function actionSingle($queueName)
 {
     global $redis;
-    Queue::getInstance()->addDealObject('paySuccess', PaySuccessMsg::class);
-    Queue::getInstance()->addDealObject('register', RegisterMsg::class);
-    Queue::getInstance()->deal($redis, $queueName);
+    $queue = Queue::getInstance();
+    $queue->addDealObject('paySuccess', PaySuccessMsg::class);
+    $queue->addDealObject('register', RegisterMsg::class);
+    $queue->deal($redis, $queueName);
 }
 
 

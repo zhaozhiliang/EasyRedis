@@ -3,6 +3,7 @@ namespace EasyRedis\queue;
 
 use EasyRedis\component\Singleton;
 use EasyRedis\lock\Lock;
+use EasyRedis\queue\abstractInterface\DealMsgAbstract;
 
 class Queue
 {
@@ -12,7 +13,10 @@ class Queue
     public function addDealObject($type, $className)
     {
         if(!isset($this->dealObjects[$type])){
-            $this->dealObjects[$type] = $className;
+            $ref = new \ReflectionClass($className);
+            if($ref->isSubclassOf(DealMsgAbstract::class)) {
+                $this->dealObjects[$type] = $className;
+            }
         }
     }
 

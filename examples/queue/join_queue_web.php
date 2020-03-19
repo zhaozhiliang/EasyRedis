@@ -44,5 +44,5 @@ function actionPaysuccess()
 echo __FILE__;
 
 //模拟请求到达控制器后 执行相应的action
-actionRegister();
-//actionPaysuccess();
+//actionRegister();
+actionPaysuccess();
