@@ -31,7 +31,7 @@ class Queue
     public function enter(\Redis $redis, string $queueName, string $type, array $args)
     {
         $data = array(
-            'type'=> $type, //'do_goods_email',
+            'type'=> $type,
             'args' => $args
 
         );
@@ -59,7 +59,6 @@ class Queue
             $type = $params['type'];
             $args = $params['args'];
 
-            //print_r($params);
             if(!isset($this->dealObjects[$type])){
                 //记录日志
                 echo "消息类型:{$type} 没有配置相应的处理类\n";
@@ -96,10 +95,14 @@ class Queue
             $params = json_decode($packed[1], true);
             $type = $params['type'];
             $args = $params['args'];
-//            var_dump($name);
-//            var_dump($args);
 
-            $className = 'EasyRedis\queue'.ucfirst($type).'Msg';
+            if(!isset($this->dealObjects[$type])){
+                //记录日志
+                echo "消息类型:{$type} 没有配置相应的处理类\n";
+                continue;
+            }
+            $className = $this->dealObjects[$type];
+
             if(!class_exists($className)){
                 //记录日志
                 echo "class:{$className}不存在\n";
@@ -113,37 +116,34 @@ class Queue
     /**
      * 将任务添加到 延迟任务队列中
      * @param \Redis $redis
+     * @param $delayName
      * @param $queueName
      * @param $type
      * @param $args
-     * @param int $delay
+     * @param int $time
      * @return int
      */
-    public static function enterDelayQueue(\Redis $redis, string $queueName, string $type, array $args, int $delay=0)
+    public function enterDelayQueue(\Redis $redis, string $delayName, string $queueName, string $type, array $args, int $time)
     {
-
         $queueMsg = $delayMsg = array(
             'type' => $type,
             'args' => $args
         );
         $delayMsg['queueName'] = $queueName;
         $delayMsgJson = json_encode($delayMsg);
-        if($delay > 0){
-            return $redis->zAdd('delayed:', time()+ $delay, $delayMsgJson);
-        } else {
-            return $redis->rPushX($queueName, json_encode($queueMsg));
-        }
 
+        return $redis->zAdd($delayName, $time, $delayMsgJson);
     }
 
     /**
      * 处理延迟队列中的任务
-     * @param $redis
+     * @param \Redis $redis
+     * @param $delayName
      */
-    public function dealDelayQueue(\Redis $redis)
+    public function dealDelayQueue(\Redis $redis, string $delayName)
     {
         while(true){
-            $item = $redis->zRange('delayed:', 0, 0, true );
+            $item = $redis->zRange($delayName, 0, 0, true );
             //var_dump($item);
             if (!$item || end($item) > time()) {
                 usleep(100000);  //睡眠100毫秒
@@ -159,19 +159,15 @@ class Queue
                 'args' => $params['args']
             );
 
-            $locked = Lock::acquire($redis,'lock:delayed');
-
+            $locked = Lock::acquire($redis,"lock:delay:{$delayName}");
             if (!$locked) {
                 continue;
             }
 
-            if ($redis->zRem('delayed:', $key1)) {
-                echo 'add queue:activity;';
+            if ($redis->zRem($delayName, $key1)) {
                 $redis->rPush($queue, json_encode($queueMsg));
             }
-
-            Lock::release($redis, 'lock:delayed', $locked);
-
+            Lock::release($redis, "lock:delay:{$delayName}", $locked);
         }
     }
 
